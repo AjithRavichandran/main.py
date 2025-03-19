@@ -1,0 +1,150 @@
+def get_valid_phone_number(prompt):
+    while True:
+        phone = input(prompt)
+        if phone.isdigit() and len(phone) == 10:
+            return phone
+        else:
+            print("Invalid phone number. Please enter a 10-digit number.")
+
+
+def get_valid_name(prompt):
+    while True:
+        name_strip = input(prompt).strip()
+        name = name_strip.upper()
+        if name and name.isalpha():
+            return name
+        else:
+            print("Invalid input. Please enter a valid name containing only alphabets.")
+
+
+def get_valid_gender(prompt):
+    valid_genders = {"male", "female"}
+    while True:
+        gender = input(prompt).lower()
+        if gender in valid_genders:
+            return gender
+        else:
+            print("Invalid input. Please enter 'male', 'female'.")
+
+
+def get_valid_integer(prompt, min_value=None, max_value=None):
+    while True:
+        try:
+            value = int(input(prompt))
+            if (min_value is not None and value < min_value) or (max_value is not None and value > max_value):
+                print(f"Please enter a value between {min_value} and {max_value}.")
+            else:
+                return value
+        except ValueError:
+            print("Invalid input. Please enter a valid integer.")
+
+
+def get_valid_float(prompt, min_value=None, max_value=None):
+    while True:
+        try:
+            value = float(input(prompt))
+            if (min_value is not None and value < min_value) or (max_value is not None and value > max_value):
+                print(f"Please enter a value between {min_value} and {max_value}.")
+            else:
+                return value
+        except ValueError:
+            print("Invalid input. Please enter valid Number.")
+
+
+def calculate_bmi(weight, height):
+    your_bmi = weight / (height * height)
+    return round(your_bmi, 1)
+
+
+def recommend_weight(your_bmi, height, weight, perfect_bmi=21.75):
+    h2 = height ** 2
+    if your_bmi < 18.5:
+        bmi_difference = perfect_bmi - your_bmi
+        recommended_weight = weight + (bmi_difference * h2)
+        status = 'Underweight'
+        return status, round(recommended_weight)
+    elif your_bmi > 23:
+        bmi_difference = your_bmi - perfect_bmi
+        recommended_weight = weight - (bmi_difference * h2)
+        status = 'Overweight'
+        return status, round(recommended_weight)
+    else:
+        recommended_weight = weight
+        status = "Healthy"
+    return status, round(recommended_weight)
+
+
+def calculate_tdee(gender, weight, height, age, activity_factor):
+    if gender.lower() == 'male':
+        bmr = 10 * weight + 6.25 * (height * 100) - 5 * age + 5
+        daily_calories = bmr * activity_factor
+        return round(daily_calories)
+    else:
+        bmr = 10 * weight + 6.25 * (height * 100) - 5 * age - 161
+        daily_calories = bmr * activity_factor
+        return round(daily_calories)
+
+
+def calculate_time_to_target(target_weight, current_weight, pace_factor):
+    weight_diff = abs(target_weight - current_weight)
+    return weight_diff * pace_factor
+
+
+# Fat provides 9 calories per gram
+def required_fat(target_weight, current_weight, daily_calories):
+    if target_weight > current_weight:
+        fat = (daily_calories * 0.30) / 9
+        return fat
+    elif current_weight > target_weight:
+        fat = (daily_calories * 0.20) / 9
+        return fat
+    else:
+        fat = (daily_calories * 0.25) / 9
+        return fat
+
+
+# 1 gram protein = 4 calories
+def required_protein(activity_level, weight):
+    if activity_level == 1.2:
+        protein = weight * 1
+        return protein
+    elif activity_level == 1.4:
+        protein = weight * 1.25
+        return protein
+    elif activity_level == 1.6:
+        protein = weight * 1.50
+        return protein
+    else:
+        protein = weight * 1.75
+        return protein
+
+
+# 1 gram carbohydrate = 4 calories
+def required_carbohydrate(target_weight, current_weight, daily_calories, ):
+    if target_weight > current_weight:
+        carbohydrate = (daily_calories * 0.60) / 4
+        return carbohydrate
+    elif current_weight > target_weight:
+        carbohydrate = (daily_calories * 0.40) / 4
+        return carbohydrate
+    else:
+        carbohydrate = (daily_calories * 0.50) / 4
+        return carbohydrate
+
+
+# 2 calories per gram.
+def required_fibre(gender):
+    if gender == 'male':
+        fibre = 30
+        return fibre
+    else:
+        fibre = 25
+        return fibre
+
+
+def meal_divide(daily_calories):
+    main_meal = daily_calories / 100 * 24.5
+    snacks = daily_calories / 100 * 13.25
+    main_main_meal = main_meal / 100 * 50
+    return main_meal, snacks, main_main_meal
+
