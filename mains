@@ -1,0 +1,142 @@
+import formula
+from formula import *
+
+
+def main():
+    print('Healthy Fit')
+    print("Let's create your account")
+
+    phone = get_valid_phone_number('Enter your Phone Number: ')
+    name = get_valid_name('Enter your Name: ')
+    gender = get_valid_gender("What's your biological sex (Male/Female/Other): ")
+    age = get_valid_integer('Enter your Age (10 - 100): ', min_value=10, max_value=100)
+    height = get_valid_float('Enter your height in meters (0.5 - 2.5): ', min_value=1, max_value=2.5)
+    weight = get_valid_float('Enter your Current Weight in Kg (1 - 500): ', min_value=1, max_value=500)
+
+    bmi = calculate_bmi(weight, height)
+    status, recommended_weight = recommend_weight(bmi, height, weight)
+    print(f'Your BMI is {bmi}, which indicates you are {status}. Your ideal weight is around {recommended_weight} kg.')
+
+    target_weight = get_valid_float('Enter your Target Weight in Kg (1 - 500):', min_value=1, max_value=500)
+
+    activity_map = {'1': 1.2, '2': 1.4, '3': 1.6, '4': 1.8}
+    print('Activity Level: \n1. Mostly Sitting\n2. Light Activity\n3. Moderate Activity\n4. Intense Activity')
+    activity_level = activity_map.get(input('Select your activity level (1-4): '), 1.2)
+
+    daily_calories = calculate_tdee(gender, weight, height, age, activity_level)
+    print(f'Your daily maintenance calories are approximately {daily_calories}.')
+
+    c = True
+    while c:
+        pace_map = {'1': 4, '2': 2, '3': 1.5}
+        print('How fast do you want to increase or decrease the weight in a week?\n1. Relaxed (0.25 '
+              'kg/week)\n2.Gradual (0.5 kg/week)\n3. Steady (0.75 kg/week)')
+        pace = pace_map.get(input('Select your desired pace (1-3): '), 4)
+
+        weeks_to_target = calculate_time_to_target(weight, target_weight, pace)
+        print(f'It will take approximately {round(weeks_to_target)} weeks to reach your target weight {target_weight}.')
+
+        calorie_adjustment = 250 if pace == 4 else 500 if pace == 2 else 750
+        if target_weight > weight:
+            daily_calories2 = daily_calories
+            daily_calories += calorie_adjustment
+
+        else:
+            daily_calories2 = daily_calories
+            daily_calories -= calorie_adjustment
+
+        if daily_calories < 1400:
+            print(
+                f'It is compulsory to take 1300 calories in a day, but your displayed calories is {daily_calories}'
+                f' only, so decrease the weight in a week')
+            daily_calories = daily_calories2
+        else:
+            c = False
+
+    print(f'To achieve your goal, you need to consume approximately {daily_calories} calories per day.')
+
+    fat = required_fat(target_weight, weight, daily_calories)
+    print(f'1. Your fat requirement is {fat}g')
+
+    protein = required_protein(activity_level, weight)
+    print(f'2. Your protein requirement is {protein}g')
+
+    carbohydrate = required_carbohydrate(target_weight, weight, daily_calories)
+    print(f'3. Your carbohydrate requirement is {carbohydrate}g')
+
+    fibre = required_fibre(gender)
+    print(f'4. Your Fibre requirement is {fibre}g')
+
+    main_meal, snacks, main_main_meal = meal_divide(daily_calories)
+    print(f'\nRecommended calories for breakfast is {main_meal} ')
+
+
+#morning breakfast
+    meal_1 = {'idly': 70, 'Dosa': 110, 'poori': 134}
+    print("You can eat the following within your breakfast calorie budget:")
+    for dish1_name, calories_per_piece in meal_1.items():
+        recommanded_breakfast = main_main_meal // calories_per_piece
+        print(f"- {recommanded_breakfast} {dish1_name}(s)")
+
+    if target_weight > weight:
+        print('Since you are planning for weight gain here are the 2 type of sidedish\n1. 100gm of Sambar and 2 '
+              'Eggs\n2. 4 tablespoon of Coconut chutney and 2 Eggs')
+    else:
+        print('Since you are planning for weight gain here are the 2 type of sidedish\n1. 70gm of Sambar and 2 '
+              'Eggs\n2. 4 tablespoon of Tomato chutney and 2 Eggs')
+
+    #snacks
+    shake = input('After completed your breakfast come back to us by 11 for snacks and type shake')
+    if shake == 'shake'.lower():
+        print('Welcome to the Shake time')
+        if target_weight > weight:
+            print('Since you are planning for weight gain here are the 2 type shake\n1. 100gm of banana, 5 Almond, '
+                  '5 Cashew, 50gm of milk, 1 tablespoon pf Chia seed\n2. 1. 100gm of banana, 1 tablespoon Raisins, '
+                  '1 Walnut, 50gm of milk, 1 tablespoon pf Chia seed ')
+        else:
+            print('Welcome to the snack section')
+            print('Since you are planning for weight loss here are the 2 type shake\n1. 80gm of banana, 3 Almond, '
+                  '3 Cashew, Use Water, 1 teaspoon of Chia seed\n2. 1. 80gm of banana, 1 teaspoon Raisins, '
+                  '1/2 Walnut, Use Water, 1 teaspoon of Chia seed ')
+
+    #lunch
+
+    lunch = input('After completed your Shake come back to us by 1.15 for lunch and type Lunch')
+    if lunch == 'lunch'.lower():
+        meal_2 = {'150gm sambar rice with 1 egg': 120, '150gm curd rice with 1 egg': 134,
+                  '150gm veg rice with 1 egg': 162}
+        print("You can eat the following within your lunch calorie budget:")
+        for meal2_name, calories_per_piece in meal_2.items():
+            recommanded_lunch = main_main_meal // calories_per_piece
+            print(f"- {recommanded_lunch} {meal2_name}")
+
+    #Evening snacks
+    evening_snacks = input('After completed your Lunch come back to us by 4.30 for evening_snacks and type '
+                           'evening_snacks')
+    if evening_snacks == 'snacks'.lower() or 'snack'.lower():
+        print('Welcome to the Snack time')
+        if target_weight > weight:
+            print('Since you are planning for weight gain here are the 2 type Snacks\n1. 2 slice of Bread with 2 '
+                  'tablespoon of Peanut Butter\n2. Homemade Bread Omelette')
+        else:
+            print('Since you are planning for weight loss here are the 2 type Snacks\n1. 2 slice of Bread with 2 '
+                  'teaspoon of Peanut Butter\n2. oil less Homemade Bread Omelette')
+
+    #Dinner
+    dinner = input('After completed your Evening snack come back to us by 8 for Dinner and type Dinner')
+    if dinner == 'dinner'.lower():
+        meal_5 = {'sapathi': 85, 'raki dosa': 103, 'parota': 144}
+        print("You can eat the following within your breakfast calorie budget:")
+        for meal5_name, calories_per_piece in meal_5.items():
+            recommanded_dinner = main_main_meal // calories_per_piece
+            print(f"- {recommanded_dinner} {meal5_name}(s)")
+
+    if target_weight > weight:
+        print('Since you are planning for weight gain here are the 2 type of sidedish\n1. 80gm of Tomato gravy and 1 '
+              'Eggs\n2. 2 tablespoon of Coconut chutney and 1 Eggs')
+    else:
+        print('Since you are planning for weight gain here are the 2 type of sidedish\n1. 50gm of Tomato gravy 1 '
+              'Eggs\n2. 3 tablespoon of Puthina chutney and 1 Eggs')
+
+
+main()
